@@ -1,6 +1,6 @@
 # Dot-Claude
 
-> The best `.claude` configuration for Claude Code - A curated collection of hooks, commands, agents, and settings to supercharge your Claude Code experience.
+> A curated `.claude` configuration of hooks, commands, agents, and settings to supercharge your Claude Code experience.
 
 ## Overview
 
