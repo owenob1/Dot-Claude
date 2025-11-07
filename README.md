@@ -2,6 +2,30 @@
 
 > A curated `.claude` configuration of hooks, commands, agents, and settings to supercharge your Claude Code experience.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+  - [Quick Setup](#quick-setup)
+  - [Manual Setup](#manual-setup)
+- [Features](#features)
+  - [Smart Hooks System](#-smart-hooks-system)
+  - [Network Security](#-network-security)
+- [Tools & Hooks](#tools--hooks)
+  - [Pre-Tool Use Safety Guard](#️-pre-tool-use-safety-guard-the-star-feature)
+  - [Session Hooks](#-session-hooks)
+  - [User Prompt Hook](#-user-prompt-hook)
+  - [File Formatting Hook](#-file-formatting-hook)
+  - [Pre-Compact Hook](#-pre-compact-hook)
+  - [Notification Hook](#-notification-hook)
+- [Configuration](#configuration)
+  - [Settings File](#settings-file)
+  - [Customizing Hooks](#customizing-hooks)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Overview
 
 Dot-Claude provides a production-ready `.claude` directory with powerful hooks and configurations to enhance Claude Code's capabilities. Whether you're managing documentation, enforcing code standards, or streamlining your workflow, this configuration has you covered.

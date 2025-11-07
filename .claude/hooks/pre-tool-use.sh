@@ -103,7 +103,7 @@ if [[ "$TOOL_NAME" == "Write" ]] || [[ "$TOOL_NAME" == "Edit" ]]; then
 
     # BLOCKED LOCATIONS
     if [[ "$FILE_PATH" == .cursor/* ]]; then
-      echo "{\"decision\": \"deny\", \"reason\": \"No new .md files in .cursor/. Use .claude/ instead. Attempted: $FILE_PATH\"}"
+      echo "{\"decision\": \"deny\", \"reason\": \"No new .md files here. Use .claude/ instead. Attempted: $FILE_PATH\"}"
       exit 0
     fi
 
