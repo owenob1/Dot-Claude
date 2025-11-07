@@ -17,6 +17,7 @@ This project is currently being built and refined. Features and documentation ma
 - [License](#license)
 
 </details>
+
 ---
 
 ## Overview
@@ -25,9 +26,11 @@ Dot-Claude provides a production-ready `.claude` directory with powerful hooks a
 
 ## Installation
 
+> **Platform Support**: Works on macOS, Linux, and Windows (via Git Bash/WSL)
+
 ### Quick Setup
 
-1. **Clone this repository** into your project:
+1. **Clone this repository**:
    ```bash
    git clone https://github.com/owenob1/Dot-Claude.git
    cd Dot-Claude
@@ -35,10 +38,17 @@ Dot-Claude provides a production-ready `.claude` directory with powerful hooks a
 
 2. **Copy the `.claude` directory** to your project root:
    ```bash
+   # macOS/Linux
    cp -r .claude /path/to/your/project/
+
+   # Windows (Git Bash)
+   cp -r .claude /c/path/to/your/project/
+
+   # Windows (PowerShell)
+   Copy-Item -Recurse .claude C:\path\to\your\project\
    ```
 
-3. **Make hooks executable**:
+3. **Make hooks executable** (macOS/Linux/Git Bash only):
    ```bash
    chmod +x .claude/hooks/*.sh
    ```
@@ -90,7 +100,10 @@ Configured allowlist for safe external API access:
 This hook combines 4 intelligent guardrails into one powerful safety system:
 
 #### 1. 💥 Bash Command Safety
-Blocks destructive commands: `rm -rf /`, fork bombs, `mkfs`, dangerous `dd` operations, and warns about force pushes to main/master.
+Blocks destructive commands from **all platforms** (because Git Bash on Windows has Unix commands too!):
+- **Unix/Linux/macOS**: `rm -rf /`, fork bombs, `mkfs`, dangerous `dd` operations
+- **Windows**: `del /S`, `format C:`, `rmdir /S`
+- **Git**: Warns about force pushes to main/master
 
 #### 2. 📦 Large File Warning
 Warns before reading files >1MB to prevent context overflow.
@@ -109,6 +122,8 @@ Enforces organized documentation structure. Only allows markdown files in design
 
 </details>
 
+---
+
 ### Other Hooks (Customizable)
 
 All hooks below are **placeholder templates** ready for your customization. They currently exit successfully without taking action.
@@ -122,6 +137,8 @@ All hooks below are **placeholder templates** ready for your customization. They
 
 </details>
 
+---
+
 <details>
 <summary><strong>📋 User Prompt Hook</strong> - Intercept and validate prompts</summary>
 
@@ -130,6 +147,8 @@ All hooks below are **placeholder templates** ready for your customization. They
 **Use cases**: Add project context, validate format, log interactions, pre-process prompts.
 
 </details>
+
+---
 
 <details>
 <summary><strong>🎨 File Formatting Hook</strong> - Auto-format after edits</summary>
@@ -140,6 +159,8 @@ All hooks below are **placeholder templates** ready for your customization. They
 
 </details>
 
+---
+
 <details>
 <summary><strong>📦 Pre-Compact Hook</strong> - Actions before compaction</summary>
 
@@ -149,6 +170,8 @@ All hooks below are **placeholder templates** ready for your customization. They
 
 </details>
 
+---
+
 <details>
 <summary><strong>🔔 Notification Hook</strong> - Handle system notifications</summary>
 
@@ -157,6 +180,8 @@ All hooks below are **placeholder templates** ready for your customization. They
 **Use cases**: Desktop notifications, event logging, Slack/Discord integration, custom alerts.
 
 </details>
+
+---
 
 ## Configuration
 
@@ -196,6 +221,8 @@ Hook scripts should:
 ```
 
 </details>
+
+---
 
 ## Project Structure
 

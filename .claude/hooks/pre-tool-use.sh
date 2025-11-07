@@ -1,10 +1,25 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # PreToolUse Hook - Runs before tool calls (can block dangerous operations)
 # Protects against common mistakes and adds intelligent guardrails
+# Cross-platform compatible: Works on macOS, Linux, and Windows (via Git Bash/WSL)
 
 INPUT=$(cat)
 TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
 CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
+
+# Detect operating system
+OS_TYPE="unknown"
+case "$(uname -s)" in
+  Darwin*)    OS_TYPE="macos";;
+  Linux*)     OS_TYPE="linux";;
+  CYGWIN*|MINGW*|MSYS*) OS_TYPE="windows";;
+  *)          OS_TYPE="unknown";;
+esac
+
+# Normalize path separators for cross-platform compatibility
+normalize_path() {
+  echo "$1" | tr '\\' '/'
+}
 
 # ==============================================================================
 # BASH COMMAND SAFETY - Warn about dangerous commands
@@ -12,7 +27,7 @@ CWD=$(echo "$INPUT" | jq -r '.cwd // empty')
 if [[ "$TOOL_NAME" == "Bash" ]]; then
   COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
 
-  # Check for dangerous patterns
+  # Check for dangerous Unix/Linux/macOS commands (Git Bash on Windows has these too!)
   if [[ "$COMMAND" =~ rm\ -rf\ / ]] || \
      [[ "$COMMAND" =~ rm\ -rf\ \~ ]] || \
      [[ "$COMMAND" =~ :\(\)\{\ :\|:\& ]] || \
@@ -23,7 +38,16 @@ if [[ "$TOOL_NAME" == "Bash" ]]; then
     exit 0
   fi
 
-  # Warn about force push to main/master
+  # Check for dangerous Windows commands (might be used in WSL or Git Bash)
+  if [[ "$COMMAND" =~ del\ /[SQF].*\* ]] || \
+     [[ "$COMMAND" =~ rmdir\ /[SQ].*\* ]] || \
+     [[ "$COMMAND" =~ format\ [A-Z]: ]] || \
+     [[ "$COMMAND" =~ rd\ /[SQ] ]]; then
+    echo "{\"decision\": \"deny\", \"reason\": \"Potentially destructive Windows command blocked: $COMMAND\"}"
+    exit 0
+  fi
+
+  # Cross-platform: Warn about force push to main/master
   if [[ "$COMMAND" =~ git\ push.*--force ]] && \
      [[ "$COMMAND" =~ (main|master) ]]; then
     echo "{\"decision\": \"ask\", \"reason\": \"Force push to main/master detected. Are you sure?\"}"
@@ -36,11 +60,27 @@ fi
 # ==============================================================================
 if [[ "$TOOL_NAME" == "Read" ]]; then
   FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+  FILE_PATH=$(normalize_path "$FILE_PATH")
 
   if [ -f "$FILE_PATH" ]; then
-    FILE_SIZE=$(stat -f%z "$FILE_PATH" 2>/dev/null || stat -c%s "$FILE_PATH" 2>/dev/null)
-    MAX_SIZE=$((1024 * 1024))  # 1MB
+    # Platform-specific file size check
+    FILE_SIZE=0
+    case "$OS_TYPE" in
+      macos)
+        FILE_SIZE=$(stat -f%z "$FILE_PATH" 2>/dev/null || echo 0)
+        ;;
+      linux)
+        FILE_SIZE=$(stat -c%s "$FILE_PATH" 2>/dev/null || echo 0)
+        ;;
+      windows)
+        FILE_SIZE=$(stat -c%s "$FILE_PATH" 2>/dev/null || wc -c < "$FILE_PATH" 2>/dev/null || echo 0)
+        ;;
+      *)
+        FILE_SIZE=$(wc -c < "$FILE_PATH" 2>/dev/null || echo 0)
+        ;;
+    esac
 
+    MAX_SIZE=$((1024 * 1024))  # 1MB
     if [ "$FILE_SIZE" -gt "$MAX_SIZE" ]; then
       SIZE_MB=$((FILE_SIZE / 1024 / 1024))
       echo "{\"decision\": \"ask\", \"reason\": \"Large file ($SIZE_MB MB). This may use significant context. Continue?\"}"
@@ -62,6 +102,7 @@ fi
 # ==============================================================================
 if [[ "$TOOL_NAME" == "Write" ]] || [[ "$TOOL_NAME" == "Edit" ]]; then
   FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+  FILE_PATH=$(normalize_path "$FILE_PATH")
 
   # Check if this is a markdown file
   if [[ "$FILE_PATH" == *.md ]]; then
