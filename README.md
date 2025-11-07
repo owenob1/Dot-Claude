@@ -2,29 +2,22 @@
 
 > A curated `.claude` configuration of hooks, commands, agents, and settings to supercharge your Claude Code experience.
 
-## Table of Contents
+> [!WARNING]
+> **Under Active Development** - This project is currently being built and refined. Features and documentation may change frequently. Feel free to use and contribute, but expect updates!
+
+<details>
+<summary><strong>📑 Table of Contents</strong></summary>
 
 - [Overview](#overview)
 - [Installation](#installation)
-  - [Quick Setup](#quick-setup)
-  - [Manual Setup](#manual-setup)
 - [Features](#features)
-  - [Smart Hooks System](#-smart-hooks-system)
-  - [Network Security](#-network-security)
 - [Tools & Hooks](#tools--hooks)
-  - [Pre-Tool Use Safety Guard](#️-pre-tool-use-safety-guard-the-star-feature)
-  - [Session Hooks](#-session-hooks)
-  - [User Prompt Hook](#-user-prompt-hook)
-  - [File Formatting Hook](#-file-formatting-hook)
-  - [Pre-Compact Hook](#-pre-compact-hook)
-  - [Notification Hook](#-notification-hook)
 - [Configuration](#configuration)
-  - [Settings File](#settings-file)
-  - [Customizing Hooks](#customizing-hooks)
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgments](#acknowledgments)
+
+</details>
 
 ## Overview
 
@@ -85,213 +78,124 @@ Configured allowlist for safe external API access:
 
 ## Tools & Hooks
 
-### 🛡️ Pre-Tool Use Safety Guard (The Star Feature!)
+### 🛡️ Pre-Tool Use Safety Guard
+
+**The Star Feature!** - A comprehensive safety system that runs before every tool call.
 
 **File**: [`.claude/hooks/pre-tool-use.sh`](.claude/hooks/pre-tool-use.sh)
 
-**Purpose**: A comprehensive safety system that runs before every tool call to protect against common mistakes and enforce best practices.
+<details>
+<summary><strong>View Details</strong></summary>
 
-This hook combines multiple intelligent guardrails into one powerful safety system:
+This hook combines 4 intelligent guardrails into one powerful safety system:
 
 #### 1. 💥 Bash Command Safety
-
-Blocks potentially destructive commands before they execute:
-- `rm -rf /` or `rm -rf ~` (filesystem destruction)
-- Fork bombs `:(){ :|:& };:`
-- `mkfs` (format disk)
-- `dd` writing to devices
-- Redirects to `/dev/sd*`
-
-**Also warns** about force pushes to main/master branches.
-
-**Example**:
-```json
-{
-  "decision": "deny",
-  "reason": "Potentially destructive command blocked: rm -rf /"
-}
-```
-
-```json
-{
-  "decision": "ask",
-  "reason": "Force push to main/master detected. Are you sure?"
-}
-```
+Blocks destructive commands: `rm -rf /`, fork bombs, `mkfs`, dangerous `dd` operations, and warns about force pushes to main/master.
 
 #### 2. 📦 Large File Warning
+Warns before reading files >1MB to prevent context overflow.
 
-Warns before reading files larger than 1MB to prevent context overflow.
-
-**Example**:
-```json
-{
-  "decision": "ask",
-  "reason": "Large file (5 MB). This may use significant context. Continue?"
-}
-```
-
-#### 3. 📝 Package.json Modification Alert
-
-Logs a reminder to run `npm install` when `package.json` is modified.
+#### 3. 📝 Package.json Alerts
+Reminds you to run `npm install` after modifications.
 
 #### 4. 📁 Markdown Structure Enforcement
+Enforces organized documentation structure. Only allows markdown files in designated locations (`docs/`, `.claude/commands/`, `.claude/agents/`, `README.md`).
 
-Prevents documentation sprawl by enforcing strict file organization:
-
-**✅ Allowed locations:**
-- `docs/` and subdirectories (`implementation/`, `architecture-transformation/`, `refactoring-phases/`, `guides/`, `freeway/`)
-- `.claude/commands/` and `.claude/agents/`
-- `README.md` files in root, `tools/`, and `src/docs/`
-
-**❌ Blocked locations:**
-- Root directory (except `README.md`)
-- `.cursor/` directory (use `.claude/` instead)
-- Session logs and preserved context directories
-- Any undocumented locations
-
-**🚨 Special handling** for COMPLETE/SUMMARY/REPORT/ANALYSIS/GUIDE files:
-- Must be placed in `docs/implementation/`
-- Requires confirmation before creating (encourages updating existing files)
-
-**Example outputs**:
+**Example responses:**
 ```json
-{
-  "decision": "deny",
-  "reason": "Only README.md allowed in root. Put documentation in docs/. Attempted: NOTES.md. Use: docs/NOTES.md"
-}
+{"decision": "deny", "reason": "Potentially destructive command blocked: rm -rf /"}
+{"decision": "ask", "reason": "Large file (5 MB). This may use significant context. Continue?"}
 ```
 
-```json
-{
-  "decision": "ask",
-  "message": "⚠️  Creating new documentation file. We have 50+ already! Think twice: Can you update an existing file in docs/implementation/ instead?"
-}
-```
+</details>
 
-**Why it's useful**: This single hook prevents data loss, maintains organized documentation, protects against accidental destructive operations, and keeps your project clean and safe.
+### Other Hooks (Customizable)
 
-### 🔄 Session Hooks
+All hooks below are **placeholder templates** ready for your customization. They currently exit successfully without taking action.
 
-**Files**:
-- [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh)
-- [`.claude/hooks/session-end.sh`](.claude/hooks/session-end.sh)
-- [`.claude/hooks/stop.sh`](.claude/hooks/stop.sh)
+<details>
+<summary><strong>🔄 Session Hooks</strong> - Session lifecycle management</summary>
 
-**Purpose**: Placeholder hooks for custom session lifecycle management.
+**Files**: [`session-start.sh`](.claude/hooks/session-start.sh) • [`session-end.sh`](.claude/hooks/session-end.sh) • [`stop.sh`](.claude/hooks/stop.sh)
 
-**Current state**: Ready for customization - currently exit successfully without action.
+**Use cases**: Initialize settings on start, clean up files on end, save context between sessions, trigger notifications.
 
-**Use cases**:
-- Initialize project-specific settings on session start
-- Clean up temporary files on session end
-- Save context or state between sessions
-- Trigger custom notifications
+</details>
 
-### 📋 User Prompt Hook
+<details>
+<summary><strong>📋 User Prompt Hook</strong> - Intercept and validate prompts</summary>
 
 **File**: [`.claude/hooks/user-prompt-submit.sh`](.claude/hooks/user-prompt-submit.sh)
 
-**Purpose**: Intercept and validate user prompts before processing.
+**Use cases**: Add project context, validate format, log interactions, pre-process prompts.
 
-**Current state**: Ready for customization - currently exits successfully without action.
+</details>
 
-**Use cases**:
-- Add project context to prompts
-- Validate prompt format
-- Log user interactions
-- Pre-process or enhance prompts
-
-### 🎨 File Formatting Hook
+<details>
+<summary><strong>🎨 File Formatting Hook</strong> - Auto-format after edits</summary>
 
 **File**: [`.claude/hooks/format-file.sh`](.claude/hooks/format-file.sh)
 
-**Purpose**: Automatically format files after Write or Edit operations.
+**Use cases**: Run Prettier/ESLint, ensure consistent style, add headers, validate contents.
 
-**Current state**: Ready for customization - currently exits successfully without action.
+</details>
 
-**Use cases**:
-- Run Prettier, ESLint, or other formatters
-- Ensure consistent code style
-- Add headers or comments automatically
-- Validate file contents
-
-### 📦 Pre-Compact Hook
+<details>
+<summary><strong>📦 Pre-Compact Hook</strong> - Actions before compaction</summary>
 
 **File**: [`.claude/hooks/pre-compact.sh`](.claude/hooks/pre-compact.sh)
 
-**Purpose**: Execute actions before context compaction.
+**Use cases**: Save context, log state, archive previous context, optimize preservation.
 
-**Current state**: Ready for customization - currently exits successfully without action.
+</details>
 
-**Use cases**:
-- Save important context before compaction
-- Log conversation state
-- Archive previous context
-- Optimize what gets preserved
-
-### 🔔 Notification Hook
+<details>
+<summary><strong>🔔 Notification Hook</strong> - Handle system notifications</summary>
 
 **File**: [`.claude/hooks/notification.sh`](.claude/hooks/notification.sh)
 
-**Purpose**: Handle system notifications from Claude Code.
+**Use cases**: Desktop notifications, event logging, Slack/Discord integration, custom alerts.
 
-**Current state**: Ready for customization - currently exits successfully without action.
-
-**Use cases**:
-- Send desktop notifications
-- Log important events
-- Integrate with Slack/Discord/other services
-- Custom alerting logic
+</details>
 
 ## Configuration
 
+<details>
+<summary><strong>⚙️ Settings & Customization</strong></summary>
+
 ### Settings File
 
-The [`.claude/settings.json`](.claude/settings.json) file configures all hooks and network policies. Key sections:
+The [`.claude/settings.json`](.claude/settings.json) file configures all hooks and network policies:
 
 ```json
 {
   "hooks": {
     "SessionStart": [...],
-    "SessionEnd": [...],
-    "UserPromptSubmit": [...],
     "PreToolUse": [...],
-    "PostToolUse": [...],
-    "Stop": [...],
-    "SubagentStop": [...],
-    "PreCompact": [...],
-    "Notification": [...]
+    "PostToolUse": [...]
+    // ... and more
   },
   "network": {
-    "allowlist": [...]
+    "allowlist": ["registry.npmjs.org", "*.github.com", ...]
   }
 }
 ```
 
 ### Customizing Hooks
 
-Each hook script can be customized for your needs. Hook scripts should:
+Hook scripts should:
 - Exit with code `0` on success
-- Return JSON with `decision` and `reason` fields for blocking hooks
-- Complete within the configured timeout
+- Return JSON with `decision` and `reason` for blocking actions
+- Complete within configured timeout
 - Be executable (`chmod +x`)
 
-**Example blocking hook response**:
+**Response examples**:
 ```json
-{
-  "decision": "deny",
-  "reason": "Explanation of why the action was blocked"
-}
+{"decision": "deny", "reason": "Explanation..."}
+{"decision": "proceed", "message": "Warning..."}
 ```
 
-**Example proceed with message**:
-```json
-{
-  "decision": "proceed",
-  "message": "Warning or information message"
-}
-```
+</details>
 
 ## Project Structure
 
