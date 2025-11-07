@@ -1,9 +1,8 @@
 # Dot-Claude
 
-> A curated `.claude` configuration of hooks, commands, agents, and settings to supercharge your Claude Code experience.
-
 > [!WARNING]
-> **Under Active Development** - This project is currently being built and refined. Features and documentation may change frequently. Feel free to use and contribute, but expect updates!
+> **Under Active Development**
+This project is currently being built and refined. Features and documentation may change frequently. Feel free to use and contribute, but expect updates!
 
 <details>
 <summary><strong>📑 Table of Contents</strong></summary>
@@ -18,6 +17,7 @@
 - [License](#license)
 
 </details>
+---
 
 ## Overview
 
